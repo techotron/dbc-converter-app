@@ -1,0 +1,34 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: "SES rule set and rules"
+
+Parameters:
+  ReceiptRuleSetName:
+    Type: String
+    Default: mail-to-s3
+
+  ReceiptRuleName:
+    Type: String
+    Default: mail-to-s3
+
+Resources:
+  ReceiptRuleSet:
+    Type: AWS::SES::ReceiptRuleSet
+    Properties:
+      RuleSetName: !Ref ReceiptRuleSetName
+
+  mailToS3Rule:
+    Type: AWS::SES::ReceiptRule
+    Properties:
+      RuleSetName: !Ref ReceiptRuleSetName
+      Rule:
+        Name: !Ref ReceiptRuleName
+        Enabled: true
+        ScanEnabled: true
+        Actions:
+        - S3Action:
+            BucketName: !ImportValue "dbcConverterBucket"
+            ObjectKeyPrefix: "in"
+    DependsOn: ReceiptRuleSet
+
+

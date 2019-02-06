@@ -1,0 +1,16 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Description: SQS
+
+Resources:
+  dbcConverterQueue:
+    Type: "AWS::SQS::Queue"
+    Properties:
+      QueueName: "dbcConverterQueue"
+
+Outputs:
+  dbcConverterQueue:
+    Description: SQS Queue for DBC Converter
+    Value: !Ref dbcConverterQueue
+    Export:
+      Name: "dbcConverterQueue"

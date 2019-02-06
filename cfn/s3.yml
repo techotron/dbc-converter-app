@@ -1,0 +1,42 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: S3 bucket for dbc converter
+
+Resources:
+  dbcConverterBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "dbc-converter-bucket"
+      AccessControl: Private
+
+  dbcConverterBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref dbcConverterBucket
+#      NotificationConfiguration:
+#        LambdaConfigurations:
+#          Event: String
+#          Filter:
+#            Filter
+#          Function: String
+      PolicyDocument:
+        Statement:
+        - Action:
+          - "s3:PutObject"
+          Effect: "Allow"
+          Resource:
+            Fn::Join:
+            - ""
+            - - "arn:aws:s3:::"
+              - Ref: "dbcConverterBucket"
+              - "/*"
+          Principal:
+            Service:
+            - ses.amazonaws.com
+
+Outputs:
+  dbcConverterBucket:
+    Description: S3 Bucketname for dbc converter
+    Value: !Ref dbcConverterBucket
+    Export:
+      Name: "dbcConverterBucket"

@@ -5,25 +5,25 @@ awsProfileName="intapp-devopssbx_eddy.snow@intapp.com"
 awsRegion="eu-west-1"
 appVersion="$(date +%F_%H%M%S)"
 appPackageS3Bucket="278942993584-eddy-scratch"
-appPackageS3Key="git/extract-attachment/app/$(echo $appVersion)_appPackage.zip"
+appPackageS3Key="git/dbc-converter-app/app/$(echo $appVersion)_appPackage.zip"
 
 s3StackName="dbc-converter-s3"
-s3StackUrl="https://s3-eu-west-1.amazonaws.com/278942993584-eddy-scratch/git/extract-attachment/cfn/s3.yml"
+s3StackUrl="https://s3-eu-west-1.amazonaws.com/278942993584-eddy-scratch/git/dbc-converter-app/cfn/s3.yml"
 sqsStackName="dbc-converter-sqs"
-sqsStackUrl="https://s3-eu-west-1.amazonaws.com/278942993584-eddy-scratch/git/extract-attachment/cfn/sqs.yml"
+sqsStackUrl="https://s3-eu-west-1.amazonaws.com/278942993584-eddy-scratch/git/dbc-converter-app/cfn/sqs.yml"
 sesRuleSetStackName="dbc-converter-sesRuleSet"
-sesRuleSetStackUrl="https://s3-eu-west-1.amazonaws.com/278942993584-eddy-scratch/git/extract-attachment/cfn/ses-ruleset.yml"
+sesRuleSetStackUrl="https://s3-eu-west-1.amazonaws.com/278942993584-eddy-scratch/git/dbc-converter-app/cfn/ses-ruleset.yml"
 stateMachineStackName="dbc-converter-state-machine"
-stateMachineStackUrl="https://s3-eu-west-1.amazonaws.com/278942993584-eddy-scratch/git/extract-attachment/cfn/state-machine.yml"
+stateMachineStackUrl="https://s3-eu-west-1.amazonaws.com/278942993584-eddy-scratch/git/dbc-converter-app/cfn/state-machine.yml"
 
 # Upload CloudFormation templates to s3
-aws s3 cp ./cfn/ s3://278942993584-eddy-scratch/git/extract-attachment/cfn --recursive --profile intapp-devopssbx_eddy.snow@intapp.com
+aws s3 cp ./cfn/ s3://278942993584-eddy-scratch/git/dbc-converter-app/cfn --recursive --profile intapp-devopssbx_eddy.snow@intapp.com
 
 # Package Python functions
 zip -j /tmp/$(echo $appVersion)_appPackage.zip ./app/*
 
 # Upload package to s3
-aws s3 cp /tmp/$(echo $appVersion)_appPackage.zip s3://278942993584-eddy-scratch/git/extract-attachment/app/ --profile intapp-devopssbx_eddy.snow@intapp.com
+aws s3 cp /tmp/$(echo $appVersion)_appPackage.zip s3://278942993584-eddy-scratch/git/dbc-converter-app/app/ --profile intapp-devopssbx_eddy.snow@intapp.com
 
 
 ######### Deploy CloudFormation Templates ##############################

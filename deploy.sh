@@ -15,6 +15,8 @@ sesRuleSetStackName="dbc-converter-sesRuleSet"
 sesRuleSetStackUrl="https://s3-eu-west-1.amazonaws.com/278942993584-eddy-scratch/git/dbc-converter-app/cfn/ses-ruleset.yml"
 stateMachineStackName="dbc-converter-state-machine"
 stateMachineStackUrl="https://s3-eu-west-1.amazonaws.com/278942993584-eddy-scratch/git/dbc-converter-app/cfn/state-machine.yml"
+lambdaProxyStackName="dbc-converter-lambda-proxy"
+lambdaProxyStackUrl="https://s3-eu-west-1.amazonaws.com/278942993584-eddy-scratch/git/dbc-converter-app/cfn/lambda-proxy.yml"
 
 # Upload CloudFormation templates to s3
 aws s3 cp ./cfn/ s3://278942993584-eddy-scratch/git/dbc-converter-app/cfn --recursive --profile intapp-devopssbx_eddy.snow@intapp.com
@@ -27,18 +29,6 @@ aws s3 cp /tmp/$(echo $appVersion)_appPackage.zip s3://278942993584-eddy-scratch
 
 
 ######### Deploy CloudFormation Templates ##############################
-# Deploy S3 Bucket
-echo "[$(date)] - s3 stack"
-if [ ! $(aws cloudformation describe-stacks --region $awsRegion --profile $awsProfileName | jq '.Stacks[].StackName' | grep $s3StackName) ]; then
-    echo "[$(date)] - Creating $s3StackName stack"
-    aws cloudformation create-stack --stack-name $s3StackName --template-url $s3StackUrl --profile $awsProfileName --region $awsRegion --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM;
-    aws cloudformation wait stack-create-complete --stack-name $s3StackName --profile $awsProfileName --region $awsRegion
-else
-    echo "[$(date)] - Updating $s3StackName stack"
-    aws cloudformation update-stack --stack-name $s3StackName --template-url $s3StackUrl --profile $awsProfileName --region $awsRegion --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM;
-    aws cloudformation wait stack-update-complete --stack-name $s3StackName --profile $awsProfileName --region $awsRegion
-fi
-
 # Deploy SQS
 echo "[$(date)] - sqs stack"
 if [ ! $(aws cloudformation describe-stacks --region $awsRegion --profile $awsProfileName | jq '.Stacks[].StackName' | grep $sqsStackName) ]; then
@@ -47,6 +37,18 @@ if [ ! $(aws cloudformation describe-stacks --region $awsRegion --profile $awsPr
 else
     echo "[$(date)] - Updating $sqsStackName stack"
     aws cloudformation update-stack --stack-name $sqsStackName --template-url $sqsStackUrl --profile $awsProfileName --region $awsRegion --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM;
+fi
+
+# Deploy S3 Bucket
+echo "[$(date)] - s3 stack"
+if [ ! $(aws cloudformation describe-stacks --region $awsRegion --profile $awsProfileName | jq '.Stacks[].StackName' | grep $s3StackName) ]; then
+    echo "[$(date)] - Creating $s3StackName stack"
+    aws cloudformation create-stack --stack-name $s3StackName --template-url $s3StackUrl --profile $awsProfileName --region $awsRegion --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM;
+    #aws cloudformation wait stack-create-complete --stack-name $s3StackName --profile $awsProfileName --region $awsRegion
+else
+    echo "[$(date)] - Updating $s3StackName stack"
+    aws cloudformation update-stack --stack-name $s3StackName --template-url $s3StackUrl --profile $awsProfileName --region $awsRegion --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM;
+    #aws cloudformation wait stack-update-complete --stack-name $s3StackName --profile $awsProfileName --region $awsRegion
 fi
 
 # Deploy State Machine
@@ -69,4 +71,12 @@ else
     aws cloudformation update-stack --stack-name $sesRuleSetStackName --template-url $sesRuleSetStackUrl --profile $awsProfileName --region $awsRegion
 fi
 
-
+# Deploy Lambda Proxy
+echo "[$(date)] - lambda proxy stack"
+if [ ! $(aws cloudformation describe-stacks --region $awsRegion --profile $awsProfileName | jq '.Stacks[].StackName' | grep $lambdaProxyStackName) ]; then
+    echo "[$(date)] - Creating $lambdaProxyStackName stack"
+    aws cloudformation create-stack --stack-name $lambdaProxyStackName --template-url $lambdaProxyStackUrl --parameters ParameterKey=appPackageS3Bucket,ParameterValue=$appPackageS3Bucket ParameterKey=appPackageS3Key,ParameterValue=$appPackageS3Key --profile $awsProfileName --region $awsRegion --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM;
+else
+    echo "[$(date)] - Updating $lambdaProxyStackName stack"
+    aws cloudformation update-stack --stack-name $lambdaProxyStackName --template-url $lambdaProxyStackUrl --parameters ParameterKey=appPackageS3Bucket,ParameterValue=$appPackageS3Bucket ParameterKey=appPackageS3Key,ParameterValue=$appPackageS3Key --profile $awsProfileName --region $awsRegion --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM;
+fi

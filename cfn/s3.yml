@@ -6,19 +6,33 @@ Resources:
   dbcConverterBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub "dbc-converter-bucket"
+      BucketName: dbc-converter-bucket
       AccessControl: Private
+      NotificationConfiguration:
+        QueueConfigurations:
+        - Queue: !ImportValue "dbcConverterQueue-ARN"
+          Event: "s3:ObjectCreated:*"
+          Filter:
+            S3Key:
+              Rules:
+              - Name: prefix
+                Value: in
+#      NotificationConfiguration:
+#        LambdaConfigurations:
+#          -
+#            Function: !Ref LambdaDeploymentArn
+#            Event: "s3:ObjectCreated:*"
+#            Filter:
+#              S3Key:
+#                Rules:
+#                  -
+#                    Name: prefix
+#                    Value: in
 
   dbcConverterBucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:
       Bucket: !Ref dbcConverterBucket
-#      NotificationConfiguration:
-#        LambdaConfigurations:
-#          Event: String
-#          Filter:
-#            Filter
-#          Function: String
       PolicyDocument:
         Statement:
         - Action:

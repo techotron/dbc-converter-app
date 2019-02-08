@@ -4,9 +4,25 @@ Description: SQS
 
 Resources:
   dbcConverterQueue:
-    Type: "AWS::SQS::Queue"
+    Type: AWS::SQS::Queue
     Properties:
       QueueName: "dbcConverterQueue"
+
+  dbcConverterQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Statement:
+        - Action:
+          - "sqs:*"
+          Effect: "Allow"
+          Principal:
+            Service:
+            - "s3.amazonaws.com"
+          Resource:
+            - !GetAtt dbcConverterQueue.Arn
+      Queues:
+        - !Ref dbcConverterQueue
 
 Outputs:
   dbcConverterQueue:
@@ -14,3 +30,8 @@ Outputs:
     Value: !Ref dbcConverterQueue
     Export:
       Name: "dbcConverterQueue"
+  dbcConverterQueueArn:
+    Description: ARN of SQS Queue for DBC Converter
+    Value: !GetAtt dbcConverterQueue.Arn
+    Export:
+      Name: "dbcConverterQueue-ARN"
